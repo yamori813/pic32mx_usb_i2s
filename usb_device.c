@@ -658,8 +658,7 @@ void USBDeviceInit(void)
   #elif defined(__C30__)
     void __attribute__((interrupt,auto_psv)) _USB1Interrupt()
   #elif defined(__PIC32MX__)
-    //void __attribute__((interrupt(),vector(45))) _USB1Interrupt( void )
-    void __attribute__((interrupt(),vector(_USB_1_VECTOR),nomips16)) _USB1Interrupt( void ) 
+    void __attribute__((interrupt,nomips16)) _USB1Interrupt( void ) 
   #endif
 #else
 void USBDeviceTasks(void)

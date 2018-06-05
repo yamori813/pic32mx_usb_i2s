@@ -50,7 +50,7 @@
 #include "HardwareProfile.h"
 #include "./USB/usb_function_midi.h"
 
-#include "ak4645a.h"
+#include "i2s.h"
 
 typedef struct
 {
@@ -61,18 +61,13 @@ AUDIO_PLAY_SAMPLE;
 
 AUDIO_PLAY_SAMPLE ReceivedDataEvenBuffer[NO_OF_SAMPLES_IN_A_USB_FRAME];
 AUDIO_PLAY_SAMPLE ReceivedDataOddBuffer[NO_OF_SAMPLES_IN_A_USB_FRAME];
-AUDIO_PLAY_SAMPLE TransmittedDataEvenBuffer[NO_OF_SAMPLES_IN_A_USB_FRAME];
-AUDIO_PLAY_SAMPLE TransmittedDataOddBuffer[NO_OF_SAMPLES_IN_A_USB_FRAME];
 
-USB_HANDLE USBTxEvenHandle = 0;
-USB_HANDLE USBTxOddHandle = 0;
 USB_HANDLE USBRxEvenHandle = 0;
 USB_HANDLE USBRxOddHandle = 0;
 
-AK4645AState* pCodecHandle=NULL;
+I2SState* pCodecHandle=NULL;
 
 BOOL receivedDataEvenNeedsServicingNext = FALSE;
-BOOL transmittedDataEvenNeedsServicingNext = FALSE;
 
 USB_VOLATILE BYTE msCounter;
 
@@ -217,41 +212,21 @@ void UserInit(void)
     // transmission
 	USBRxEvenHandle = NULL;
 	USBRxOddHandle = NULL;
-	USBTxEvenHandle = NULL;
-	USBTxOddHandle = NULL;
 	
 	////////////////////////////////Init CODEC	
 
 	ANSELA = ANSELB = 0;
-/*
-	TRISBbits.TRISB0=0;
-	TRISBbits.TRISB13=0;
-	TRISBbits.TRISB15=0;
-	LATBbits.LATB0=1;
-	LATBbits.LATB13=1;
-	LATBbits.LATB15=1;
-	TRISAbits.TRISA3 = 0;	
-		
-	TRISAbits.TRISA0 = 0;
-	TRISAbits.TRISA4 = 0;
-	TRISAbits.TRISA1 = 1;	
-	TRISBbits.TRISB5 = 0;
-	TRISBbits.TRISB8 = 0;
-	TRISBbits.TRISB9 = 0;
-	LATAbits.LATA3 = 0;
-*/
-    TRISA = 0x0000;
-    TRISB = 0x0000;
-    PORTA = 0x0000;
-
+	TRISA = 0x0000;
+	TRISB = 0x0000;
+	PORTA = 0x0000;
 	
 	// Initialize reference clock out module
-    REFOCONbits.OE = 0;
-    REFOCONbits.ON = 0;
+	REFOCONbits.OE = 0;
+	REFOCONbits.ON = 0;
 	REFOCONbits.ROSEL = 6;
 	REFOCONbits.RODIV = 3;
-    REFOTRIM = 464<<23;	
-    REFOCONSET = 0x00000200;
+	REFOTRIM = 464<<23;	
+	REFOCONSET = 0x00000200;
 	REFOCONbits.OE = 1;
 	REFOCONbits.ON = 1;
 //	mOSCREFOTRIMSet(464);
@@ -259,9 +234,9 @@ void UserInit(void)
 
 //	LATAbits.LATA3 = 1;
 
-	pCodecHandle=AK4645AOpen(O_WR);
-	AK4645ASetSampleRate(pCodecHandle, SAMPLERATE_48000HZ);
-	AK4645AStartAudio(pCodecHandle, TRUE);
+	pCodecHandle=I2SOpen();
+	I2SSetSampleRate(pCodecHandle, SAMPLERATE_48000HZ);
+	I2SStartAudio(pCodecHandle, TRUE);
 }//end UserInit
 
 /********************************************************************
@@ -288,10 +263,10 @@ void ProcessIO(void)
 
 	if (receivedDataEvenNeedsServicingNext == TRUE) {
 		if (!USBHandleBusy(USBRxEvenHandle)) {
-mLED_1_Toggle();
-			AK4645AWrite(pCodecHandle, ReceivedDataEvenBuffer,
+			I2SWrite(pCodecHandle,
+			    (AudioStereo*)ReceivedDataEvenBuffer,
 			    pCodecHandle->frameSize);
-			AK4645AAdjustSampleRateTx(pCodecHandle);
+			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxEvenHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataEvenBuffer,
 			    sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize);
@@ -299,15 +274,15 @@ mLED_1_Toggle();
 		} 
 	} else {
 		if(!USBHandleBusy(USBRxOddHandle)) {
-			AK4645AWrite(pCodecHandle, ReceivedDataOddBuffer,
+			I2SWrite(pCodecHandle,
+			    (AudioStereo*)ReceivedDataOddBuffer,
 			    pCodecHandle->frameSize);
-			AK4645AAdjustSampleRateTx(pCodecHandle);
+			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxOddHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataOddBuffer,
 			    sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize);
 			receivedDataEvenNeedsServicingNext = TRUE;
 		}
-		// Todo: Tx process
 	}
 
 }//end ProcessIO
@@ -662,12 +637,6 @@ void USBCBInitEP(void)
 
   receivedDataEvenNeedsServicingNext = TRUE;
 
-/*
-  USBTxEvenHandle = USBTxOnePacket(AS_EP_IN,(BYTE*)&TransmittedDataEvenBuffer,sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize);
-  USBTxOddHandle = USBTxOnePacket(AS_EP_IN,(BYTE*)&TransmittedDataOddBuffer,sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize);
-
-  transmittedDataEvenNeedsServicingNext = TRUE;
-*/
 }
 
 /********************************************************************

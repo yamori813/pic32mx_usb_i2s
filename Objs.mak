@@ -6,7 +6,7 @@ OBJS = \
 	usb_device.o	\
 	usb_descriptors.o	\
 	usb_function_audio.o	\
-	ak4645a.o	\
+	i2s.o	\
 	\
 	uart1.o 	\
 	crt.o		\

@@ -199,9 +199,11 @@ ROM BYTE configDescriptor1[] ={
     //CD
     0x09,             
     0x02,           
-    0xE4,
+//    0xE4,
+    0x98,
     0x00,
-    0x03, 
+//    0x03, 
+    0x02, 
     0x01,                              
     0x00,                              
     _DEFAULT | _SELF,                  
@@ -241,6 +243,8 @@ ROM BYTE configDescriptor1[] ={
 	        0x00,           
 	        0x00,           
 
+#if 0
+
 			//ACID	--> B
 	        0x0C,                               
 	        0x24,                       
@@ -262,6 +266,7 @@ ROM BYTE configDescriptor1[] ={
 	        0x00,         
 	        0x02,
 	        0x00,         
+#endif
 
 
 			//ACID	--> D
@@ -391,6 +396,7 @@ ROM BYTE configDescriptor1[] ={
             0x00,       
             0x00,0x00,  
 
+#if 0
 	//ID
     0x09,     
     0x04,     
@@ -452,6 +458,7 @@ ROM BYTE configDescriptor1[] ={
             0x00,0x00,   
 
 			
+#endif
 };
 
 //Language code string descriptor
