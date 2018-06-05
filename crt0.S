@@ -305,25 +305,11 @@ _main_entry:
 	nop
 
 #
-# T1 ISR VECTOR 
-#
-#	.section .vector_4,"ax",%progbits
-#	j	_T1Interrupt
-#	nop
-
-#
 # DMA0 ISR VECTOR 
 #
 	.section .vector_40,"ax",%progbits
 	j	_DmaInterruptHandlerTx
 	nop
-
-#
-# DMA1 ISR VECTOR 
-#
-#	.section .vector_41,"ax",%progbits
-#	j	_DmaInterruptHandlerRx
-#	nop
 
 #
 # SELFBOOT RESET VECTOR  (IGNORE THIS INSTRUCTION FOR BOOTLOADER MODE)
