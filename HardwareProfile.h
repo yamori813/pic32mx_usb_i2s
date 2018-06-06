@@ -29,20 +29,5 @@
 
 #define CLOCK_FREQ 40000000
 
-    #ifdef AUDIO_SAMPLING_FREQUENCY_48000
-        #define NO_OF_SAMPLES_IN_A_USB_FRAME 48
-        #define PWM_PERIOD      (CLOCK_FREQ/48000)-1
-    #elif defined AUDIO_SAMPLING_FREQUENCY_32000
-        #define NO_OF_SAMPLES_IN_A_USB_FRAME 32
-        #define PWM_PERIOD      (CLOCK_FREQ/32000)-1
-    #elif defined AUDIO_SAMPLING_FREQUENCY_44100
-        #define NO_OF_SAMPLES_IN_A_USB_FRAME 44
-        #define PWM_PERIOD      (CLOCK_FREQ/44100)-1
-    #endif
-
-
-#define mInitTimerInterrupt() { INTEnableSystemMultiVectoredInt();INTEnableInterrupts;}
-#define mInitTimer()	{OpenTimer2(T2_ON | T2_SOURCE_INT | T2_PS_1_1, PWM_PERIOD);ConfigIntTimer2(T2_INT_OFF | T2_INT_PRIOR_7);}
-
 #endif  
 

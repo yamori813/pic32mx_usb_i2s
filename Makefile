@@ -64,9 +64,6 @@ crt.o : crt0.S
 usb_device.o : $(MCS)/Microchip/USB/usb_device.c
 	$(CC) $(ELF_FLAGS) $(CFLAGS) $(MIPS16) -c "$<" -o $@
 
-usb_function_audio.o : $(MCS)/Microchip/USB/Audio\ Device\ Driver/usb_function_audio.c
-	$(CC) $(ELF_FLAGS) $(CFLAGS) $(MIPS16) -c "$<" -o $@
-
 size:
 	$(SIZE) main32.elf
 
