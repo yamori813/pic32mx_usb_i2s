@@ -267,22 +267,26 @@ void ProcessIO(void)
 		if (!USBHandleBusy(USBRxEvenHandle)) {
 			I2SWrite(pCodecHandle,
 			    (AudioStereo*)ReceivedDataEvenBuffer,
-			    pCodecHandle->frameSize);
+//			    pCodecHandle->frameSize);
+			    USBHandleGetLength(USBRxEvenHandle)/4);
 			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxEvenHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataEvenBuffer,
-			    sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize);
+			    sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize
+			    + 1);
 			receivedDataEvenNeedsServicingNext = FALSE;
 		} 
 	} else {
 		if(!USBHandleBusy(USBRxOddHandle)) {
 			I2SWrite(pCodecHandle,
 			    (AudioStereo*)ReceivedDataOddBuffer,
-			    pCodecHandle->frameSize);
+//			    pCodecHandle->frameSize);
+			    USBHandleGetLength(USBRxEvenHandle)/4);
 			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxOddHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataOddBuffer,
-			    sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize);
+			    sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize
+			    + 1);
 			receivedDataEvenNeedsServicingNext = TRUE;
 		}
 	}

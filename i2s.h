@@ -7,7 +7,8 @@
 #define GetPeripheralClock() 		40000000
 #endif
 
-#define BUFFER_DEPTH			6
+//#define BUFFER_DEPTH			6
+#define BUFFER_DEPTH			3
 #define PINGPONG_DEPTH			(BUFFER_DEPTH<<1)
 #define I2S_TX_BUFFER_SIZE_STEREO_WORD	(48*PINGPONG_DEPTH)
 #define I2S_TX_BUFFER_SIZE_BYTES  	(I2S_TX_BUFFER_SIZE_STEREO_WORD * sizeof(UINT32))

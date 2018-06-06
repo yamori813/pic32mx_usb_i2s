@@ -279,22 +279,33 @@ UINT I2SWritePPBuffer(I2SState* pCodecHandle, AudioStereo* data, UINT nStereoSam
 	else
 		data_index_value_tx = 0;
 	
-	usePPBuffer = (pCodecHandle->activeTxBuffer == PP_BUFF0) ? PP_BUFF1 : PP_BUFF0;
+	usePPBuffer = (pCodecHandle->activeTxBuffer == PP_BUFF0) ?
+	    PP_BUFF1 : PP_BUFF0;
 	if (pCodecHandle->statusTxBuffer[usePPBuffer] == TRUE)
-	return(0);
-	nWrittenSamples = (nStereoSamples > DMA_PP_BUFFER_SIZE) ? DMA_PP_BUFFER_SIZE : nStereoSamples;
-	dest = (usePPBuffer == PP_BUFF0) ? 	&pCodecHandle->txBuffer[0]
-									 :	&pCodecHandle->txBuffer[DMA_PP_BUFFER_SIZE];
+		return(0);
 
+	nWrittenSamples = (nStereoSamples > DMA_PP_BUFFER_SIZE) ?
+	    DMA_PP_BUFFER_SIZE : nStereoSamples;
+
+	dest = (usePPBuffer == PP_BUFF0) ? &pCodecHandle->txBuffer[0]
+	    : &pCodecHandle->txBuffer[DMA_PP_BUFFER_SIZE];
+
+	int overflow = 0;
 	for(i = 0; i < nWrittenSamples; i++){	
-	dest[data_index_tx].audioWord = data[i].audioWord;
+		dest[data_index_tx].audioWord = data[i].audioWord;
 		data_index_tx++;
+		if (data_index_tx == pCodecHandle->bufferSize){
+			if (dest ==  &pCodecHandle->txBuffer[0])
+				dest = &pCodecHandle->txBuffer[DMA_PP_BUFFER_SIZE];
+			else
+				dest = &pCodecHandle->txBuffer[0];
+			data_index_tx = 0;
+			overflow = 1;
+		}
 	}
 
-	
-	if (data_index_tx >= pCodecHandle->bufferSize){
-		data_index_value_tx=data_index_tx;
-		data_index_tx=0;
+	if (overflow) {
+		data_index_value_tx=pCodecHandle->bufferSize+data_index_tx;
 		pCodecHandle->countTxBuffer[usePPBuffer] = pCodecHandle->bufferSize;	  
 		pCodecHandle->statusTxBuffer[usePPBuffer] = TRUE;
 	}
