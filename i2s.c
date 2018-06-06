@@ -364,60 +364,70 @@ INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate)
 	data_index_tx=0;
 	data_index_value_tx=0;
 		
-		
 	switch(sampleRate){
 		case SAMPLERATE_32000HZ:
-
 			pCodecHandle->samplingFreq=32000;
 		   	pCodecHandle->frameSize=32;
-		pCodecHandle->bufferSize=pCodecHandle->frameSize*BUFFER_DEPTH;
-		pCodecHandle->bufferSize=pCodecHandle->frameSize*BUFFER_DEPTH;
-			pCodecHandle->underrunCount=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)-pCodecHandle->frameSize/4;
-			pCodecHandle->overrunCount=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)+pCodecHandle->frameSize/4;
-			pCodecHandle->underrunLimit=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)-pCodecHandle->frameSize/2;
-			pCodecHandle->overrunLimit=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)+pCodecHandle->frameSize/2;	
- 
+   			pllkUpdate=440;
 			REFOCONbits.OE = 0;
 			REFOCONbits.ON = 0;
 			REFOCONbits.RODIV = 5;
-			REFOTRIM=(440<<23);		
+			REFOTRIM=(pllkUpdate<<23);		
 			REFOCONSET=0x00000200;	
 			REFOCONbits.OE = 1;
 			REFOCONbits.ON = 1;
    			pCodecHandle->pllkTune=1;
    			pCodecHandle->pllkTuneLimit=8;
-   			pCodecHandle->pllkValue=440;
-   			pllkUpdate=440;
+   			pCodecHandle->pllkValue=pllkUpdate;
   			
  			break;
  						
 		case SAMPLERATE_48000HZ:
 			pCodecHandle->samplingFreq=48000;
 			pCodecHandle->frameSize=48;
-		pCodecHandle->bufferSize=pCodecHandle->frameSize*BUFFER_DEPTH;
-			pCodecHandle->underrunCount=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)-pCodecHandle->frameSize/4;
-			pCodecHandle->overrunCount=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)+pCodecHandle->frameSize/4;
-			pCodecHandle->underrunLimit=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)-pCodecHandle->frameSize/2;
-			pCodecHandle->overrunLimit=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)+pCodecHandle->frameSize/2;	
- 
+   			pllkUpdate=464;
 			REFOCONbits.OE = 0;
 			REFOCONbits.ON = 0;
 			REFOCONbits.RODIV = 3;
-			REFOTRIM=0xE8000000;
+			REFOTRIM=(pllkUpdate<<23);
 			REFOCONSET=0x00000200;	
 			REFOCONbits.OE = 1;
 			REFOCONbits.ON = 1;
    			pCodecHandle->pllkTune=1;
    			pCodecHandle->pllkTuneLimit=4;
-   			pCodecHandle->pllkValue=0x1D0;
-   			pllkUpdate=0x1D0;
+   			pCodecHandle->pllkValue=pllkUpdate;
+					
+			break;
+			
+		case SAMPLERATE_96000HZ:
+			pCodecHandle->samplingFreq=96000;
+			pCodecHandle->frameSize=96;
+   			pllkUpdate=488;
+			REFOCONbits.OE = 0;
+			REFOCONbits.ON = 0;
+			REFOCONbits.RODIV = 1;
+			REFOTRIM=(pllkUpdate<<23);
+			REFOCONSET=0x00000200;	
+			REFOCONbits.OE = 1;
+			REFOCONbits.ON = 1;
+   			pCodecHandle->pllkTune=1;
+   			pCodecHandle->pllkTuneLimit=4;
+   			pCodecHandle->pllkValue=pllkUpdate;
 					
 			break;
 			
 		default: 
 			break;
 	}
+
+	pCodecHandle->bufferSize=pCodecHandle->frameSize*BUFFER_DEPTH;
+	pCodecHandle->underrunCount=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)-pCodecHandle->frameSize/4;
+	pCodecHandle->overrunCount=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)+pCodecHandle->frameSize/4;
+	pCodecHandle->underrunLimit=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)-pCodecHandle->frameSize/2;
+	pCodecHandle->overrunLimit=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)+pCodecHandle->frameSize/2;	
 	
+	I2SStartAudio(pCodecHandle, TRUE);
+
 	return(1);
 
 }

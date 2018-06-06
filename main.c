@@ -48,7 +48,7 @@
 /** INCLUDES *******************************************************/
 #include "./USB/usb.h"
 #include "HardwareProfile.h"
-#include "./USB/usb_function_midi.h"
+#include "./USB/usb_function_audio.h"
 
 #include "i2s.h"
 
@@ -224,9 +224,11 @@ void UserInit(void)
 	REFOCONbits.OE = 0;
 	REFOCONbits.ON = 0;
 	REFOCONbits.ROSEL = 6;
+/*
 	REFOCONbits.RODIV = 3;
 	REFOTRIM = 464<<23;	
 	REFOCONSET = 0x00000200;
+*/
 	REFOCONbits.OE = 1;
 	REFOCONbits.ON = 1;
 //	mOSCREFOTRIMSet(464);
@@ -236,7 +238,7 @@ void UserInit(void)
 
 	pCodecHandle=I2SOpen();
 	I2SSetSampleRate(pCodecHandle, SAMPLERATE_48000HZ);
-	I2SStartAudio(pCodecHandle, TRUE);
+//	I2SStartAudio(pCodecHandle, TRUE);
 }//end UserInit
 
 /********************************************************************
@@ -578,6 +580,7 @@ void USBCBErrorHandler(void)
 
 void USBCBCheckOtherReq(void)
 {
+	USBCheckAudioRequest();
 }//end
 
 
@@ -826,8 +829,7 @@ BOOL USER_USB_CALLBACK_EVENT_HANDLER(int event, void *pdata, WORD size)
             USBCBStdSetDscHandler();
             break;
         case EVENT_EP0_REQUEST:
-//            USBCBCheckOtherReq();
-              USBCheckAudioRequest();
+            USBCBCheckOtherReq();
             break;
         case EVENT_BUS_ERROR:
             USBCBErrorHandler();
@@ -847,6 +849,35 @@ BOOL USER_USB_CALLBACK_EVENT_HANDLER(int event, void *pdata, WORD size)
     }
     return TRUE;
 }
+
+#if defined USB_AUDIO_ENDPOINT_CONTROL_REQUESTS_HANDLER
+void UsbSampleRateControl(void){
+	switch(pCodecHandle->samplingFreq){
+		case 96000:
+			I2SSetSampleRate(pCodecHandle, SAMPLERATE_96000HZ);
+			break;
+		case 48000:
+			I2SSetSampleRate(pCodecHandle, SAMPLERATE_48000HZ);
+			break;
+		case 32000:
+			I2SSetSampleRate(pCodecHandle, SAMPLERATE_32000HZ);
+			break;
+	}
+}
+
+void UsbAudioEndpointControlRequestsHandler(void)
+{
+	switch (SetupPkt.W_Value.byte.HB) {
+		case SAMPLING_FREQ_CONTROL:
+			switch(SetupPkt.bRequest) {
+				case SET_CUR:
+					USBEP0Receive ((BYTE*)&(pCodecHandle->samplingFreq),3,UsbSampleRateControl);
+				break;
+		}
+	}
+	
+}
+#endif
 
 /** EOF main.c *************************************************/
 #endif

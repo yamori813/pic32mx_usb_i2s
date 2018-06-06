@@ -172,5 +172,6 @@
 #define AS_EP_OUT                       1
 #define AS_EP_IN            2
 
+#define USB_AUDIO_ENDPOINT_CONTROL_REQUESTS_HANDLER UsbAudioEndpointControlRequestsHandler
 
 #endif //USBCFG_H

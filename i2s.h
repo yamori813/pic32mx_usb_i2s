@@ -73,6 +73,7 @@ typedef enum{
 
 
 typedef enum{
+	SAMPLERATE_96000HZ,
 	SAMPLERATE_48000HZ,
 	SAMPLERATE_44100HZ,
 	SAMPLERATE_32000HZ,
@@ -87,3 +88,4 @@ void I2SStartAudio(I2SState *pCodecHandle, BOOL enable);
 INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate);
 UINT I2SWrite(I2SState* pCodecHandle, AudioStereo* data, UINT nStereoSamples);
 void I2SAdjustSampleRateTx(I2SState* pCodecHandle);
+INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate);
