@@ -59,10 +59,12 @@ all: $(OBJS)
 crt.o : crt0.S
 	$(CC) $(ELF_FLAGS) -I$(PINPATH)/p32/include/non-free -c $< -o $@
 
-usb_host_hid_parser.o : $(MCS)/Microchip/USB/HID\ Host\ Driver/usb_host_hid_parser.c
+# Microchip Libraries for Applications (MLA) code
+
+usb_device.o : $(MCS)/Microchip/USB/usb_device.c
 	$(CC) $(ELF_FLAGS) $(CFLAGS) $(MIPS16) -c "$<" -o $@
 
-usb_host_hid.o : $(MCS)/Microchip/USB/HID\ Host\ Driver/usb_host_hid.c
+usb_function_audio.o : $(MCS)/Microchip/USB/Audio\ Device\ Driver/usb_function_audio.c
 	$(CC) $(ELF_FLAGS) $(CFLAGS) $(MIPS16) -c "$<" -o $@
 
 size:

@@ -174,4 +174,7 @@
 
 #define USB_AUDIO_ENDPOINT_CONTROL_REQUESTS_HANDLER UsbAudioEndpointControlRequestsHandler
 
+#define ID_PROCESSING_UNIT 0x06
+#define ID_MIXER_UNIT      0x03
+
 #endif //USBCFG_H
