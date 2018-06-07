@@ -223,22 +223,12 @@ void UserInit(void)
 	// Initialize reference clock out module
 	REFOCONbits.OE = 0;
 	REFOCONbits.ON = 0;
-	REFOCONbits.ROSEL = 6;
-/*
-	REFOCONbits.RODIV = 3;
-	REFOTRIM = 464<<23;	
-	REFOCONSET = 0x00000200;
-*/
+	REFOCONbits.ROSEL = 6;	// use USB PLL 96MHz
 	REFOCONbits.OE = 1;
 	REFOCONbits.ON = 1;
-//	mOSCREFOTRIMSet(464);
-//	OSCREFConfig(OSC_REFOCON_USBPLL,OSC_REFOCON_OE | OSC_REFOCON_ON,3);
-
-//	LATAbits.LATA3 = 1;
 
 	pCodecHandle=I2SOpen();
 	I2SSetSampleRate(pCodecHandle, SAMPLERATE_48000HZ);
-//	I2SStartAudio(pCodecHandle, TRUE);
 }//end UserInit
 
 /********************************************************************
@@ -857,8 +847,8 @@ BOOL USER_USB_CALLBACK_EVENT_HANDLER(int event, void *pdata, WORD size)
 #if defined USB_AUDIO_ENDPOINT_CONTROL_REQUESTS_HANDLER
 void UsbSampleRateControl(void){
 	switch(pCodecHandle->samplingFreq){
-		case 96000:
-			I2SSetSampleRate(pCodecHandle, SAMPLERATE_96000HZ);
+		case 44100:
+			I2SSetSampleRate(pCodecHandle, SAMPLERATE_44100HZ);
 			break;
 		case 48000:
 			I2SSetSampleRate(pCodecHandle, SAMPLERATE_48000HZ);
