@@ -42,6 +42,8 @@ CFLAGS+=-D__PIC32MX__ -D__$(PROC)__ -D$(BOARD)
 CFLAGS+=-D__PIC32_FEATURE_SET__=220
 #CFLAGS+=-DCONFIG_12MHz
 CFLAGS+=-D__XC32
+# 24 bit support is not work corrctly. Only work at 32KHz
+#CFLAGS+=-DSAMPLE24
 
 all: $(OBJS)
 	cp $(MP)/lib/proc/32MX220F032B/processor.o .

@@ -113,8 +113,13 @@ I2SOpen()
 
     // REFCLK is used by the Baud Rate Generator
     SPI1CONbits.MCLKSEL = 1;
+#ifdef SAMPLE24
+    // 24-bit Data, 32-bit FIFO, 32-bit Channel/64-bit Frame
+    SPI1CONbits.MODE32 = 1; 
+#else
     // 16-bit Data, 16-bit FIFO, 32-bit Channel/64-bit Frame
     SPI1CONbits.MODE32 = 0; 
+#endif
     SPI1CONbits.MODE16 = 1; 
     // Baud Rate Generator
     SPI1BRG = 1;
@@ -277,7 +282,9 @@ UINT I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 	AudioStereo* dest;
 	AudioStereo* src;
 
+#ifndef SAMPLE24
 	src = (AudioStereo*)data;
+#endif
 	if (nStereoSamples == 0) return(0);
 	
 	usePPBuffer = pCodecHandle->activeTxBuffer;
@@ -286,7 +293,16 @@ UINT I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 	    : &pCodecHandle->txBuffer[DMA_PP_BUFFER_SIZE];
 
 	for(i = 0; i < nStereoSamples; i++){	
+#ifdef SAMPLE24
+		dest[data_index_tx].rightChannel[0] = data[i * 6];
+		dest[data_index_tx].rightChannel[1] = data[i * 6 + 1];
+		dest[data_index_tx].rightChannel[2] = data[i * 6 + 2];
+		dest[data_index_tx].leftChannel[0] = data[i * 6 + 3];
+		dest[data_index_tx].leftChannel[1] = data[i * 6 + 4];
+		dest[data_index_tx].leftChannel[2] = data[i * 6 + 5];
+#else
 		dest[data_index_tx].audioWord = src[i].audioWord;
+#endif
 		data_index_tx++;
 		if (data_index_tx == pCodecHandle->bufferSize){
 			pCodecHandle->statusTxBuffer[usePPBuffer] = TRUE;
@@ -306,9 +322,15 @@ UINT I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 		DmaChnSetTxfer(	I2S_SPI_TX_DMA_CHANNEL,
 			(void*)pCodecHandlePriv->txBuffer,
 			(void*)&I2S_SPI_MODULE_BUFFER,
-			I2S_TX_BUFFER_SIZE_BYTES>>1, 
+			I2S_TX_BUFFER_SIZE_BYTES / 2, 
+#ifdef SAMPLE24
+			sizeof(UINT32),
+			sizeof(UINT32)	);	
+#else
 			sizeof(UINT16),
 			sizeof(UINT16)	);	
+#endif
+
 		DmaChnEnable(I2S_SPI_TX_DMA_CHANNEL);
 		while(!DCH0CONbits.CHEN)
 			DCH0CONbits.CHEN=1;
@@ -483,14 +505,19 @@ void __attribute__((interrupt(), nomips16))_DmaInterruptHandlerTx(void)
 		srcptr = &pCodecHandlePriv->txBuffer[0];
 		pCodecHandlePriv->statusTxBuffer[PP_BUFF0] = FALSE;
 	}
-	size = I2S_TX_BUFFER_SIZE_BYTES>>1;
+	size = I2S_TX_BUFFER_SIZE_BYTES / 2;
 
 	DmaChnSetTxfer(	I2S_SPI_TX_DMA_CHANNEL,
 					(void*)srcptr,
 					(void *)(&I2S_SPI_MODULE_BUFFER),
 					size, 
+#ifdef SAMPLE24
+					sizeof(UINT32),
+					sizeof(UINT32)	);
+#else
 					sizeof(UINT16),
 					sizeof(UINT16)	);
+#endif
 
 	DmaChnEnable(I2S_SPI_TX_DMA_CHANNEL);
 

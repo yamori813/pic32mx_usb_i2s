@@ -52,7 +52,11 @@
 
 #include "i2s.h"
 
+#ifdef SAMPLE24
+#define SAMPLEBYTE	3
+#else
 #define SAMPLEBYTE	2
+#endif
 
 typedef struct
 {
@@ -261,7 +265,7 @@ void ProcessIO(void)
 			    (unsigned char*)ReceivedDataEvenBuffer,
 //			    pCodecHandle->frameSize);
 			    USBHandleGetLength(USBRxEvenHandle)/sizeof(USB_AUDIO_SAMPLE));
-			I2SAdjustSampleRateTx(pCodecHandle);
+//			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxEvenHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataEvenBuffer,
 			    sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize
@@ -274,7 +278,7 @@ void ProcessIO(void)
 			    (unsigned char*)ReceivedDataOddBuffer,
 //			    pCodecHandle->frameSize);
 			    USBHandleGetLength(USBRxEvenHandle)/sizeof(USB_AUDIO_SAMPLE));
-			I2SAdjustSampleRateTx(pCodecHandle);
+//			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxOddHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataOddBuffer,
 			    sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize
@@ -631,8 +635,8 @@ void USBCBInitEP(void)
 {
   USBEnableEndpoint(AS_EP_IN,USB_OUT_ENABLED|USB_IN_ENABLED|USB_DISALLOW_SETUP);
   USBEnableEndpoint(AS_EP_OUT,USB_OUT_ENABLED|USB_IN_ENABLED|USB_DISALLOW_SETUP);
-  USBRxEvenHandle = USBRxOnePacket(AS_EP_OUT,(BYTE*)&ReceivedDataEvenBuffer,sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize); 
-   USBRxOddHandle = USBRxOnePacket(AS_EP_OUT,(BYTE*)&ReceivedDataOddBuffer,sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize);
+  USBRxEvenHandle = USBRxOnePacket(AS_EP_OUT,(BYTE*)&ReceivedDataEvenBuffer,sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize + 1); 
+   USBRxOddHandle = USBRxOnePacket(AS_EP_OUT,(BYTE*)&ReceivedDataOddBuffer,sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize + 1);
 
   receivedDataEvenNeedsServicingNext = TRUE;
 

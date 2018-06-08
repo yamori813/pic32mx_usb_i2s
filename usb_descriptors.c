@@ -183,12 +183,21 @@ ROM USB_DEVICE_DESCRIPTOR device_dsc=
    0x01                    // Number of possible configurations
 };
 
+#ifdef SAMPLE24
+typedef struct
+{
+    unsigned char left[3];
+    unsigned char right[3];
+}
+AUDIO_PLAY_SAMPLE;
+#else
 typedef struct
 {
     INT16 left;
     INT16 right;
 }
 AUDIO_PLAY_SAMPLE;
+#endif
 #define AUDIO_MAX_FREQ              48000
 #define AUDIO_MAX_SAMPLES           48
 
@@ -372,8 +381,13 @@ ROM BYTE configDescriptor1[] ={
         0x02,                       
         0x01,                       
         0x02,                       
+#ifdef SAMPLE24
+        0x03, 	// bSubFrameSize
+        0x18,	// bBitResolution
+#else
         0x02,                       
         0x10,                       
+#endif
         0x03,                       
         0x80,0xBB,0x00,    
         0x00,0x7D,0x00,
@@ -385,7 +399,11 @@ ROM BYTE configDescriptor1[] ={
         0x05,     
 		0x01, 
         0x09,                         
+#ifdef SAMPLE24
+	0x26, 0x01,	// wMaxPacketSize
+#else
         AUDIO_MAX_SAMPLES * sizeof ( AUDIO_PLAY_SAMPLE ), 0x00,     
+#endif
         0x01,                         
         0x00,                         
         0x00,                         

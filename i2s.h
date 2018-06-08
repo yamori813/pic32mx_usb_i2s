@@ -8,10 +8,14 @@
 #endif
 
 //#define BUFFER_DEPTH			6
-#define BUFFER_DEPTH			4
+#define BUFFER_DEPTH			2	
 #define PINGPONG_DEPTH			(BUFFER_DEPTH<<1)
 #define I2S_TX_BUFFER_SIZE_STEREO_WORD	(50*PINGPONG_DEPTH)
+#ifdef SAMPLE24
+#define I2S_TX_BUFFER_SIZE_BYTES  	(I2S_TX_BUFFER_SIZE_STEREO_WORD * sizeof(UINT32) * 2)
+#else
 #define I2S_TX_BUFFER_SIZE_BYTES  	(I2S_TX_BUFFER_SIZE_STEREO_WORD * sizeof(UINT32))
+#endif
 #define DMA_PP_BUFFER_SIZE 		(I2S_TX_BUFFER_SIZE_STEREO_WORD>>1)
 
 #define I2S_I2C_ADDRESS 		((0x09<<2) | 0x02)
@@ -39,6 +43,14 @@ typedef enum{
 	INC_TUNE,
 } TUNE_STEP;
 
+#ifdef SAMPLE24
+typedef union{
+	struct{
+		unsigned char rightChannel[4];
+		unsigned char leftChannel[4];
+	};
+}AudioStereo;
+#else
 typedef union{
 	struct{
 		INT16 rightChannel;
@@ -46,6 +58,7 @@ typedef union{
 	};
 	UINT32 audioWord;
 }AudioStereo;
+#endif
 
 typedef struct __I2S_state{
 	AudioStereo			*txBuffer;
