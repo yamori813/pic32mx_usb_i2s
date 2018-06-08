@@ -87,6 +87,6 @@ typedef enum{
 I2SState* I2SOpen();
 void I2SStartAudio(I2SState *pCodecHandle, BOOL enable);
 INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate);
-UINT I2SWrite(I2SState* pCodecHandle, AudioStereo* data, UINT nStereoSamples);
+UINT I2SWrite(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples);
 void I2SAdjustSampleRateTx(I2SState* pCodecHandle);
 INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate);

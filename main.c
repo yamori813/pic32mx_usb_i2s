@@ -52,15 +52,17 @@
 
 #include "i2s.h"
 
+#define SAMPLEBYTE	2
+
 typedef struct
 {
-    INT16 left;
-    INT16 right;
+    unsigned char left[SAMPLEBYTE];
+    unsigned char right[SAMPLEBYTE];
 }
-AUDIO_PLAY_SAMPLE;
+USB_AUDIO_SAMPLE;
 
-AUDIO_PLAY_SAMPLE ReceivedDataEvenBuffer[MAX_SAMPLES_IN_A_USB_FRAME];
-AUDIO_PLAY_SAMPLE ReceivedDataOddBuffer[MAX_SAMPLES_IN_A_USB_FRAME];
+USB_AUDIO_SAMPLE ReceivedDataEvenBuffer[MAX_SAMPLES_IN_A_USB_FRAME];
+USB_AUDIO_SAMPLE ReceivedDataOddBuffer[MAX_SAMPLES_IN_A_USB_FRAME];
 
 USB_HANDLE USBRxEvenHandle = 0;
 USB_HANDLE USBRxOddHandle = 0;
@@ -256,26 +258,26 @@ void ProcessIO(void)
 	if (receivedDataEvenNeedsServicingNext == TRUE) {
 		if (!USBHandleBusy(USBRxEvenHandle)) {
 			I2SWrite(pCodecHandle,
-			    (AudioStereo*)ReceivedDataEvenBuffer,
+			    (unsigned char*)ReceivedDataEvenBuffer,
 //			    pCodecHandle->frameSize);
-			    USBHandleGetLength(USBRxEvenHandle)/4);
+			    USBHandleGetLength(USBRxEvenHandle)/sizeof(USB_AUDIO_SAMPLE));
 			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxEvenHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataEvenBuffer,
-			    sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize
+			    sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize
 			    + 1);
 			receivedDataEvenNeedsServicingNext = FALSE;
 		} 
 	} else {
 		if(!USBHandleBusy(USBRxOddHandle)) {
 			I2SWrite(pCodecHandle,
-			    (AudioStereo*)ReceivedDataOddBuffer,
+			    (unsigned char*)ReceivedDataOddBuffer,
 //			    pCodecHandle->frameSize);
-			    USBHandleGetLength(USBRxEvenHandle)/4);
+			    USBHandleGetLength(USBRxEvenHandle)/sizeof(USB_AUDIO_SAMPLE));
 			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxOddHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataOddBuffer,
-			    sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize
+			    sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize
 			    + 1);
 			receivedDataEvenNeedsServicingNext = TRUE;
 		}
@@ -629,8 +631,8 @@ void USBCBInitEP(void)
 {
   USBEnableEndpoint(AS_EP_IN,USB_OUT_ENABLED|USB_IN_ENABLED|USB_DISALLOW_SETUP);
   USBEnableEndpoint(AS_EP_OUT,USB_OUT_ENABLED|USB_IN_ENABLED|USB_DISALLOW_SETUP);
-  USBRxEvenHandle = USBRxOnePacket(AS_EP_OUT,(BYTE*)&ReceivedDataEvenBuffer,sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize); 
-   USBRxOddHandle = USBRxOnePacket(AS_EP_OUT,(BYTE*)&ReceivedDataOddBuffer,sizeof(AUDIO_PLAY_SAMPLE)*pCodecHandle->frameSize);
+  USBRxEvenHandle = USBRxOnePacket(AS_EP_OUT,(BYTE*)&ReceivedDataEvenBuffer,sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize); 
+   USBRxOddHandle = USBRxOnePacket(AS_EP_OUT,(BYTE*)&ReceivedDataOddBuffer,sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize);
 
   receivedDataEvenNeedsServicingNext = TRUE;
 

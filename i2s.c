@@ -270,12 +270,14 @@ INT I2SControl(I2SState* pCodecHandle, I2S_REGISTER controlRegister, INT command
 
 }
 
-UINT I2SWritePPBuffer(I2SState* pCodecHandle, AudioStereo* data, UINT nStereoSamples)
+UINT I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples)
 {
 	UINT i, nWrittenSamples = 0;
 	PINGPONG_BUFFN usePPBuffer;
 	AudioStereo* dest;
+	AudioStereo* src;
 
+	src = (AudioStereo*)data;
 	if (nStereoSamples == 0) return(0);
 	
 	usePPBuffer = pCodecHandle->activeTxBuffer;
@@ -284,7 +286,7 @@ UINT I2SWritePPBuffer(I2SState* pCodecHandle, AudioStereo* data, UINT nStereoSam
 	    : &pCodecHandle->txBuffer[DMA_PP_BUFFER_SIZE];
 
 	for(i = 0; i < nStereoSamples; i++){	
-		dest[data_index_tx].audioWord = data[i].audioWord;
+		dest[data_index_tx].audioWord = src[i].audioWord;
 		data_index_tx++;
 		if (data_index_tx == pCodecHandle->bufferSize){
 			pCodecHandle->statusTxBuffer[usePPBuffer] = TRUE;
@@ -317,7 +319,7 @@ UINT I2SWritePPBuffer(I2SState* pCodecHandle, AudioStereo* data, UINT nStereoSam
 	return(nWrittenSamples);	
 }
 
-UINT I2SWrite(I2SState* pCodecHandle, AudioStereo* data, UINT nStereoSamples) 
+UINT I2SWrite(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples) 
 {
 	UINT writtenSamples = 0;
 	writtenSamples = I2SWritePPBuffer(pCodecHandle, &data[0], nStereoSamples);
