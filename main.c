@@ -209,7 +209,8 @@ static void InitializeSystem(void)
 void UserInit(void)
 {
     //Initialize all of the LED pins
-//    mInitAllLEDs();
+    mInitAllLEDs();
+//    mLED_1_On();
 
     //Initialize all of the push buttons
 //    mInitAllSwitches();

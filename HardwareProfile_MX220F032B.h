@@ -65,7 +65,8 @@
     #define mLED_3_Toggle()     mLED_3 = !mLED_3;
     #define mLED_4_Toggle()     mLED_4 = !mLED_4;
     
-    #define mInitAllLEDs()      TRISBbits.TRISB15=0;TRISBbits.TRISB14=0;mLED_1_Off();mLED_2_Off();
+//    #define mInitAllLEDs()      TRISBbits.TRISB15=0;TRISBbits.TRISB14=0;mLED_1_Off();mLED_2_Off();
+    #define mInitAllLEDs()      TRISBbits.TRISB15=0;
     /** SWITCH *********************************************************/
     #define mInitSwitch2()      TRISBbits.TRISB7=1;
     #define mInitSwitch3()      TRISBbits.TRISB3=1;
