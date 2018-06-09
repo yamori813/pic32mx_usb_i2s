@@ -68,11 +68,6 @@ typedef struct __I2S_state{
 	volatile BOOL			runDMA;
 
 	volatile UINT	 		frameSize;	// one Isochronous size
-	volatile UINT 			bufferSize;
-	volatile UINT 			underrunCount;
-	volatile UINT 			overrunCount;
-	volatile UINT 			underrunLimit;
-	volatile UINT 			overrunLimit;
 	volatile INT 			pllkValue;
 	volatile INT 			pllkTune;
 	volatile INT			pllkTuneLimit;
@@ -101,6 +96,8 @@ typedef enum{
 I2SState* I2SOpen();
 void I2SStartAudio(I2SState *pCodecHandle, BOOL enable);
 INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate);
-UINT I2SWrite(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples);
+void I2SWrite(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples);
 void I2SAdjustSampleRateTx(I2SState* pCodecHandle);
 INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate);
+INT I2SControl(I2SState* pCodecHandle, I2S_REGISTER controlRegister, INT command);
+

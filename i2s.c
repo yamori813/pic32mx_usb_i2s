@@ -39,8 +39,6 @@
 #include "HardwareProfile.h"
 #include "i2s.h"
 
-INT I2SControl(I2SState* pCodecHandle, I2S_REGISTER controlRegister, INT command);
-
 volatile INT 	data_index_tx=0;
 volatile INT	pllkUpdate=0;
 volatile INT 	last_check_pos;
@@ -286,9 +284,9 @@ INT I2SControl(I2SState* pCodecHandle, I2S_REGISTER controlRegister, INT command
 
 }
 
-UINT I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples)
+void I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples)
 {
-	UINT i, nWrittenSamples = 0;
+	UINT i;
 	PINGPONG_BUFFN usePPBuffer;
 	AudioStereo* dest;
 	AudioStereo* src;
@@ -357,14 +355,13 @@ UINT I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 		last_check_pos = -1;
 	}
 
-	return(nWrittenSamples);	
+	return;	
 }
 
-UINT I2SWrite(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples) 
+void I2SWrite(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples) 
 {
-	UINT writtenSamples = 0;
-	writtenSamples = I2SWritePPBuffer(pCodecHandle, &data[0], nStereoSamples);
-	return(writtenSamples);
+	I2SWritePPBuffer(pCodecHandle, &data[0], nStereoSamples);
+	return;
 }
 
 
@@ -479,13 +476,6 @@ INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate)
 			break;
 	}
 
-//	pCodecHandle->bufferSize=pCodecHandle->frameSize*BUFFER_DEPTH;
-	pCodecHandle->bufferSize=DMA_PP_BUFFER_SIZE;
-	pCodecHandle->underrunCount=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)-pCodecHandle->frameSize/4;
-	pCodecHandle->overrunCount=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)+pCodecHandle->frameSize/4;
-	pCodecHandle->underrunLimit=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)-pCodecHandle->frameSize/2;
-	pCodecHandle->overrunLimit=pCodecHandle->bufferSize+((int)pCodecHandle->frameSize>>1)+pCodecHandle->frameSize/2;	
-	
 	I2SStartAudio(pCodecHandle, TRUE);
 
 	return(1);
