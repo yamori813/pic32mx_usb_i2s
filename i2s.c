@@ -99,6 +99,7 @@ I2SOpen()
     
     SPI1STATCLR = 0x40; // clear the Overflow
     SPI1CON2 = 0x00000080; // I2S Mode, AUDEN = 1, AUDMON = 0
+    SPI1CON2bits.AUDMOD = (!sw3 << 1) | !sw2;
     SPI1CON2bits.IGNROV = 1; // Ignore Receive Overflow bit (for Audio Data Transmissions)
     SPI1CON2bits.IGNTUR = 1; //  Ignore Transmit Underrun bit (for Audio Data Transmissions) 1 = A TUR is not a critical error and zeros are transmitted until thSPIxTXB is not empty 0 = A TUR is a critical error which stop SPI operation
     

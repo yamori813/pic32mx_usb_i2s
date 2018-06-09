@@ -210,10 +210,9 @@ void UserInit(void)
 {
     //Initialize all of the LED pins
     mInitAllLEDs();
-//    mLED_1_On();
 
     //Initialize all of the push buttons
-//    mInitAllSwitches();
+    mInitAllSwitches();
 
     //initialize the variable holding the handle for the last
     // transmission
@@ -223,9 +222,11 @@ void UserInit(void)
 	////////////////////////////////Init CODEC	
 
 	ANSELA = ANSELB = 0;
+/*
 	TRISA = 0x0000;
 	TRISB = 0x0000;
 	PORTA = 0x0000;
+*/
 	
 	// Initialize reference clock out module
 	REFOCONbits.OE = 0;
