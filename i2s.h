@@ -62,7 +62,6 @@ typedef union{
 typedef struct __I2S_state{
 	AudioStereo			*txBuffer;
 	volatile PINGPONG_BUFFN		activeTxBuffer;
-	volatile BOOL			statusTxBuffer[PP_BUFFN];
 	volatile UINT			countTxBuffer[PP_BUFFN];
 	volatile UINT			sizeTxBuffer[PP_BUFFN];
 	volatile BOOL			runDMA;

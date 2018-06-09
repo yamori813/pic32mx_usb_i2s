@@ -146,7 +146,6 @@ void I2SInit(I2SState *pCodecHandle)
 int i;
 
 	for (i = 0;i < PP_BUFFN; ++i) {
-		pCodecHandle->statusTxBuffer[i] = FALSE;
 		pCodecHandle->countTxBuffer[i] = 0;
 		pCodecHandle->sizeTxBuffer[i] = 0;
 	}
@@ -320,10 +319,8 @@ void I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 
 	if (pCodecHandle->countTxBuffer[usePPBuffer] == BUFFER_DEPTH) {
 		if (usePPBuffer == PP_BUFF0) {
-			pCodecHandlePriv->statusTxBuffer[PP_BUFF0] = TRUE;
 			pCodecHandle->activeTxBuffer = PP_BUFF1;
 		} else {
-			pCodecHandlePriv->statusTxBuffer[PP_BUFF1] = TRUE;
 			pCodecHandle->activeTxBuffer = PP_BUFF0;
 		}
 		data_index_tx = 0;
@@ -486,6 +483,7 @@ void stop()
 {
 	data_index_tx = 0;
 	pCodecHandlePriv->activeTxBuffer = PP_BUFF0;
+	I2SInit(pCodecHandlePriv);
 	mLED_1_Off();
 }
 
@@ -501,11 +499,10 @@ void __attribute__((interrupt(), nomips16))_DmaInterruptHandlerTx(void)
 	DmaChnClrEvFlags(I2S_SPI_TX_DMA_CHANNEL, DMA_EV_BLOCK_DONE);
 	
 	if (pCodecHandlePriv->activeTxBuffer == PP_BUFF0) {
-		if (pCodecHandlePriv->statusTxBuffer[PP_BUFF1] != TRUE) {
+		if (pCodecHandlePriv->countTxBuffer[PP_BUFF1] != BUFFER_DEPTH) {
 			stop();
 			return;
 		}
-		pCodecHandlePriv->statusTxBuffer[PP_BUFF1] = FALSE;
 		srcptr = &pCodecHandlePriv->txBuffer[DMA_PP_BUFFER_SIZE];
 #ifdef SAMPLE24
 		size = pCodecHandlePriv->sizeTxBuffer[PP_BUFF1] * 8;
@@ -515,11 +512,10 @@ void __attribute__((interrupt(), nomips16))_DmaInterruptHandlerTx(void)
 		pCodecHandlePriv->sizeTxBuffer[PP_BUFF1] = 0;
 		pCodecHandlePriv->countTxBuffer[PP_BUFF1] = 0;
 	} else {
-		if (pCodecHandlePriv->statusTxBuffer[PP_BUFF0] != TRUE) {
+		if (pCodecHandlePriv->countTxBuffer[PP_BUFF0] != BUFFER_DEPTH) {
 			stop();
 			return;
 		}
-		pCodecHandlePriv->statusTxBuffer[PP_BUFF0] = FALSE;
 		srcptr = &pCodecHandlePriv->txBuffer[0];
 #ifdef SAMPLE24
 		size = pCodecHandlePriv->sizeTxBuffer[PP_BUFF0] * 8;
