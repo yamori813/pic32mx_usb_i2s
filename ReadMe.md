@@ -16,4 +16,11 @@ Swtich configuration
 RB8 - AUDMOD bit 0  
 RB7 - AUDMOD bit 1  
 
+AUDMOD  
+
+11 = PCM/DSP mode  
+10 = Right-Justified mode  
+01 = Left-Justified mode  
+00 = I2S mode  
+
 Currently I2S only support 48KHz 16bit  
