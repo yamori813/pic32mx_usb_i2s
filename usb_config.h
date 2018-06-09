@@ -171,6 +171,6 @@
 
 #define USB_AUDIO_ENDPOINT_CONTROL_REQUESTS_HANDLER UsbAudioEndpointControlRequestsHandler
 
-#define MAX_SAMPLES_IN_A_USB_FRAME 96
+#define MAX_SAMPLES_IN_A_USB_FRAME (48 + 1)
 
 #endif //USBCFG_H
