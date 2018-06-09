@@ -8,13 +8,12 @@
 #endif
 
 //#define BUFFER_DEPTH			6
-#define BUFFER_DEPTH			2	
-#define PINGPONG_DEPTH			(BUFFER_DEPTH<<1)
-#define I2S_TX_BUFFER_SIZE_STEREO_WORD	(50*PINGPONG_DEPTH)
+#define BUFFER_DEPTH			3
+#define I2S_TX_BUFFER_SIZE_STEREO_WORD	(49*BUFFER_DEPTH*2)
 #ifdef SAMPLE24
 #define I2S_TX_BUFFER_SIZE_BYTES  	(I2S_TX_BUFFER_SIZE_STEREO_WORD * sizeof(UINT32) * 2)
 #else
-#define I2S_TX_BUFFER_SIZE_BYTES  	(I2S_TX_BUFFER_SIZE_STEREO_WORD * sizeof(UINT32))
+#define I2S_TX_BUFFER_SIZE_BYTES  	(I2S_TX_BUFFER_SIZE_STEREO_WORD * sizeof(UINT16) * 2)
 #endif
 #define DMA_PP_BUFFER_SIZE 		(I2S_TX_BUFFER_SIZE_STEREO_WORD>>1)
 
@@ -64,6 +63,8 @@ typedef struct __I2S_state{
 	AudioStereo			*txBuffer;
 	volatile PINGPONG_BUFFN		activeTxBuffer;
 	volatile BOOL			statusTxBuffer[PP_BUFFN];
+	volatile UINT			countTxBuffer[PP_BUFFN];
+	volatile UINT			sizeTxBuffer[PP_BUFFN];
 	volatile BOOL			runDMA;
 
 	volatile UINT	 		frameSize;	// one Isochronous size

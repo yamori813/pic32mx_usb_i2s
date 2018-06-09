@@ -266,7 +266,7 @@ void ProcessIO(void)
 			    (unsigned char*)ReceivedDataEvenBuffer,
 //			    pCodecHandle->frameSize);
 			    USBHandleGetLength(USBRxEvenHandle)/sizeof(USB_AUDIO_SAMPLE));
-//			I2SAdjustSampleRateTx(pCodecHandle);
+			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxEvenHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataEvenBuffer,
 			    sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize
@@ -279,7 +279,7 @@ void ProcessIO(void)
 			    (unsigned char*)ReceivedDataOddBuffer,
 //			    pCodecHandle->frameSize);
 			    USBHandleGetLength(USBRxEvenHandle)/sizeof(USB_AUDIO_SAMPLE));
-//			I2SAdjustSampleRateTx(pCodecHandle);
+			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxOddHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataOddBuffer,
 			    sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize

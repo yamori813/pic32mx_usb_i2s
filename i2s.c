@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2018 Hiroki Mori. All rights reserved.
+ */
+
 /********************************************************************
  FileName:	i2s.c (ak4645a.c)
  Dependencies:  See INCLUDES section
@@ -32,15 +36,14 @@
 
 #include <string.h>
 
+#include "HardwareProfile.h"
 #include "i2s.h"
 
 INT I2SControl(I2SState* pCodecHandle, I2S_REGISTER controlRegister, INT command);
 
 volatile INT 	data_index_tx=0;
-volatile INT 	data_index_value_tx=0;
 volatile INT	pllkUpdate=0;
-volatile INT 	data_available_count=0;
-volatile INT 	last_start_pos;
+volatile INT 	last_check_pos;
 
 I2SState* pCodecHandlePriv = NULL;
 
@@ -140,20 +143,28 @@ I2SOpen()
 	return(pCodecHandlePriv);
 }
 
+void I2SInit(I2SState *pCodecHandle)
+{
+int i;
+
+	for (i = 0;i < PP_BUFFN; ++i) {
+		pCodecHandle->statusTxBuffer[i] = FALSE;
+		pCodecHandle->countTxBuffer[i] = 0;
+		pCodecHandle->sizeTxBuffer[i] = 0;
+	}
+}
+
 void I2SStartAudio(I2SState *pCodecHandle, BOOL enable)
 {
 
 	if (enable == TRUE) {
 
 		pllkUpdate=0;
-		data_available_count=0;		
 		
 		data_index_tx=0;
-		data_index_value_tx=0;
 		
 		pCodecHandle->activeTxBuffer 	= PP_BUFF0;
-		pCodecHandle->statusTxBuffer[PP_BUFF0] = FALSE;
-		pCodecHandle->statusTxBuffer[PP_BUFF1] = FALSE;
+		I2SInit(pCodecHandle);
 		DmaChnClrEvFlags(I2S_SPI_TX_DMA_CHANNEL, DMA_EV_BLOCK_DONE);
 		//INTEnable( I2S_SPI_TX_DMA_INTERRUPT, INT_ENABLED);
 		IEC1bits.DMA0IE=1;
@@ -304,29 +315,35 @@ UINT I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 		dest[data_index_tx].audioWord = src[i].audioWord;
 #endif
 		data_index_tx++;
-		if (data_index_tx == pCodecHandle->bufferSize){
-			pCodecHandle->statusTxBuffer[usePPBuffer] = TRUE;
-			if (usePPBuffer == PP_BUFF0) {
-				dest = &pCodecHandle->txBuffer[DMA_PP_BUFFER_SIZE];
-				pCodecHandle->activeTxBuffer = PP_BUFF1;
-			} else {
-				dest = &pCodecHandle->txBuffer[0];
-				pCodecHandle->activeTxBuffer = PP_BUFF0;
-			}
-			data_index_tx = 0;
-		}
 	}
 
+	++pCodecHandle->countTxBuffer[usePPBuffer];
+	pCodecHandle->sizeTxBuffer[usePPBuffer] += nStereoSamples;
+
+	if (pCodecHandle->countTxBuffer[usePPBuffer] == BUFFER_DEPTH) {
+		if (usePPBuffer == PP_BUFF0) {
+			pCodecHandlePriv->statusTxBuffer[PP_BUFF0] = TRUE;
+			pCodecHandle->activeTxBuffer = PP_BUFF1;
+		} else {
+			pCodecHandlePriv->statusTxBuffer[PP_BUFF1] = TRUE;
+			pCodecHandle->activeTxBuffer = PP_BUFF0;
+		}
+		data_index_tx = 0;
+	}
+
+	// Sart DMA
 	if (pCodecHandle->runDMA == FALSE && usePPBuffer == PP_BUFF1 &&
-	    data_index_tx > (pCodecHandle->bufferSize / 2)) {
+	    pCodecHandle->countTxBuffer[usePPBuffer] >= (BUFFER_DEPTH / 2)) {
+		mLED_1_On();
 		DmaChnSetTxfer(	I2S_SPI_TX_DMA_CHANNEL,
 			(void*)pCodecHandlePriv->txBuffer,
 			(void*)&I2S_SPI_MODULE_BUFFER,
-			I2S_TX_BUFFER_SIZE_BYTES / 2, 
 #ifdef SAMPLE24
+			pCodecHandle->sizeTxBuffer[PP_BUFF0] * 8,
 			sizeof(UINT32),
 			sizeof(UINT32)	);	
 #else
+			pCodecHandle->sizeTxBuffer[PP_BUFF0] * 4,
 			sizeof(UINT16),
 			sizeof(UINT16)	);	
 #endif
@@ -335,7 +352,9 @@ UINT I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 		while(!DCH0CONbits.CHEN)
 			DCH0CONbits.CHEN=1;
 		pCodecHandle->runDMA = TRUE;
-		last_start_pos = data_index_tx;
+		pCodecHandle->sizeTxBuffer[PP_BUFF0] = 0;
+		pCodecHandle->countTxBuffer[PP_BUFF0] = 0;
+		last_check_pos = -1;
 	}
 
 	return(nWrittenSamples);	
@@ -358,18 +377,20 @@ INT I2SBufferClear(I2SState* pCodecHandle){
 
 void I2SAdjustSampleRateTx(I2SState* pCodecHandle)
 {
-#if 0	
-	data_available_count=(pCodecHandle->bufferSize-(volatile INT)(DmaChnGetSrcPnt(I2S_SPI_TX_DMA_CHANNEL)>>2))+data_index_value_tx;
+	PINGPONG_BUFFN usePPBuffer;
+	INT curpos;
 
-	if (data_available_count>pCodecHandle->underrunLimit && data_available_count<pCodecHandle->overrunLimit){
-			
-		if (data_available_count<pCodecHandle->underrunCount)
-			I2STuneSampleRate(pCodecHandle, DEC_TUNE);
-		else if (data_available_count>pCodecHandle->overrunCount)
-			I2STuneSampleRate(pCodecHandle, INC_TUNE);
+	usePPBuffer = pCodecHandle->activeTxBuffer;
+	if (pCodecHandle->countTxBuffer[usePPBuffer] == (BUFFER_DEPTH / 2)) {
+		curpos = DmaChnGetSrcPnt(I2S_SPI_TX_DMA_CHANNEL);
+		if (last_check_pos != -1) {
+			if (curpos < last_check_pos)
+				I2STuneSampleRate(pCodecHandle, INC_TUNE);
+			else if (curpos > last_check_pos)
+				I2STuneSampleRate(pCodecHandle, DEC_TUNE);
+		}
+		last_check_pos = curpos;
 	}
-#endif
-		
 }
 
 
@@ -399,10 +420,8 @@ INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate)
 {
 	I2SStartAudio(pCodecHandle, FALSE);
 	pllkUpdate=0;
-	data_available_count=0;		
 	
 	data_index_tx=0;
-	data_index_value_tx=0;
 		
 	switch(sampleRate){
 		case SAMPLERATE_32000HZ:
@@ -477,6 +496,7 @@ void stop()
 {
 	data_index_tx = 0;
 	pCodecHandlePriv->activeTxBuffer = PP_BUFF0;
+	mLED_1_Off();
 }
 
 void __attribute__((interrupt(), nomips16))_DmaInterruptHandlerTx(void)
@@ -495,17 +515,30 @@ void __attribute__((interrupt(), nomips16))_DmaInterruptHandlerTx(void)
 			stop();
 			return;
 		}
-		srcptr = &pCodecHandlePriv->txBuffer[DMA_PP_BUFFER_SIZE];
 		pCodecHandlePriv->statusTxBuffer[PP_BUFF1] = FALSE;
+		srcptr = &pCodecHandlePriv->txBuffer[DMA_PP_BUFFER_SIZE];
+#ifdef SAMPLE24
+		size = pCodecHandlePriv->sizeTxBuffer[PP_BUFF1] * 8;
+#else
+		size = pCodecHandlePriv->sizeTxBuffer[PP_BUFF1] * 4;
+#endif
+		pCodecHandlePriv->sizeTxBuffer[PP_BUFF1] = 0;
+		pCodecHandlePriv->countTxBuffer[PP_BUFF1] = 0;
 	} else {
 		if (pCodecHandlePriv->statusTxBuffer[PP_BUFF0] != TRUE) {
 			stop();
 			return;
 		}
-		srcptr = &pCodecHandlePriv->txBuffer[0];
 		pCodecHandlePriv->statusTxBuffer[PP_BUFF0] = FALSE;
+		srcptr = &pCodecHandlePriv->txBuffer[0];
+#ifdef SAMPLE24
+		size = pCodecHandlePriv->sizeTxBuffer[PP_BUFF0] * 8;
+#else
+		size = pCodecHandlePriv->sizeTxBuffer[PP_BUFF0] * 4;
+#endif
+		pCodecHandlePriv->sizeTxBuffer[PP_BUFF0] = 0;
+		pCodecHandlePriv->countTxBuffer[PP_BUFF0] = 0;
 	}
-	size = I2S_TX_BUFFER_SIZE_BYTES / 2;
 
 	DmaChnSetTxfer(	I2S_SPI_TX_DMA_CHANNEL,
 					(void*)srcptr,
@@ -520,15 +553,6 @@ void __attribute__((interrupt(), nomips16))_DmaInterruptHandlerTx(void)
 #endif
 
 	DmaChnEnable(I2S_SPI_TX_DMA_CHANNEL);
-
-	if (data_index_tx > (last_start_pos + pCodecHandlePriv->frameSize / 2)) {
-		I2STuneSampleRate(pCodecHandlePriv, INC_TUNE);
-	}
-	if (data_index_tx < (last_start_pos - pCodecHandlePriv->frameSize / 2)) {
-		I2STuneSampleRate(pCodecHandlePriv, DEC_TUNE);
-	}
-
-	last_start_pos = data_index_tx;
 
 #ifdef USE_DEBUG_LED
 //	PORTToggleBits(IOPORT_B, BIT_0);
