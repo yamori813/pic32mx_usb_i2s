@@ -58,7 +58,7 @@
 								// application related data.
 									
 #define USB_MAX_NUM_INT     	3   // For tracking Alternate Setting
-#define USB_MAX_EP_NUMBER	    4
+#define USB_MAX_EP_NUMBER	    2
 
 //Device descriptor - if these two definitions are not defined then
 //  a ROM USB_DEVICE_DESCRIPTOR variable by the exact name of device_dsc
