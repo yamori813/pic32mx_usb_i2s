@@ -209,7 +209,7 @@ ROM BYTE configDescriptor1[] ={
     0x09,             
     0x02,           
 //    0xE4,
-    0x9B,
+    0x98,
     0x00,
 //    0x03, 
     0x02, 
@@ -376,7 +376,8 @@ ROM BYTE configDescriptor1[] ={
         0x01,0x00,        
 
         //ASID
-        0x11,                          
+//        0x11,                          
+        0x0E,                          
         0x24,                       
         0x02,                       
         0x01,                       
@@ -388,11 +389,12 @@ ROM BYTE configDescriptor1[] ={
         0x02,                       
         0x10,                       
 #endif
-        0x03,                       
+//        0x03,                       
+        0x02,                       
         0x80,0xBB,0x00,    
         0x00,0x7D,0x00,
+//	0x44,0xAC,0x00,		// 44.1kHz
 //	0x00,0x77,0x01,         // 96kHz
-	0x44,0xAC,0x00,		// 44.1kHz
 
 		//ED
         0x09,     

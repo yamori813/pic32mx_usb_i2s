@@ -389,25 +389,27 @@ void I2SAdjustSampleRateTx(I2SState* pCodecHandle)
 }
 
 
-INT I2STuneSampleRate(I2SState* pCodecHandle, TUNE_STEP tune_step)
+void I2STuneSampleRate(I2SState* pCodecHandle, TUNE_STEP tune_step)
 {
-	 
-	INT command;
-	INT result=-1;
+	if ((pllkUpdate - pCodecHandle->pllkValue) <
+	    (-1*pCodecHandle->pllkTuneLimit))
+		pllkUpdate = pCodecHandle->pllkValue -
+		    pCodecHandle->pllkTuneLimit + pCodecHandle->pllkTune;
+	else if ((pllkUpdate - pCodecHandle->pllkValue) >
+	    pCodecHandle->pllkTuneLimit)
+		pllkUpdate = pCodecHandle->pllkValue +
+		    pCodecHandle->pllkTuneLimit - pCodecHandle->pllkTune;
 
-	if ((pllkUpdate-pCodecHandle->pllkValue)<(-1*pCodecHandle->pllkTuneLimit))
-		pllkUpdate=pCodecHandle->pllkValue-pCodecHandle->pllkTuneLimit+pCodecHandle->pllkTune;	
-	else if ((pllkUpdate-pCodecHandle->pllkValue)>pCodecHandle->pllkTuneLimit)
-		pllkUpdate=pCodecHandle->pllkValue+pCodecHandle->pllkTuneLimit-pCodecHandle->pllkTune;
-		
-
-	pllkUpdate=(tune_step==INC_TUNE)?(pllkUpdate-pCodecHandle->pllkTune):(pllkUpdate+pCodecHandle->pllkTune);
-	
+	if (tune_step == INC_TUNE) {
+		pllkUpdate = pllkUpdate - pCodecHandle->pllkTune;
+	} else {
+		pllkUpdate = pllkUpdate + pCodecHandle->pllkTune;
+	}
 
 	REFOTRIM=(pllkUpdate<<23);
 	REFOCONSET=0x00000200;
 
-	return(1);
+	return;
 }
 
 
