@@ -31,7 +31,8 @@
 #define	CONFIG_FCKSM			CSDCMD	/* Clock Switching Disabled	 */	   
 #define	CONFIG_FPBDIV			0		/* PBCLK = SYSCLK */	
 #define	CONFIG_OSCIOFNC			1		/* CLKO	output Disabled	 */	   
-#define	CONFIG_POSCMOD			2		/* Primary Osillator is	HS mode	*/	  
+//#define	CONFIG_POSCMOD			2		/* Primary Osillator is	HS mode	*/	  
+#define	CONFIG_POSCMOD			1		/* Primary Osillator is	XS mode	*/	  
 #define	CONFIG_IESO				0		/* Switchover mode is Disbled */	
 #define	CONFIG_FSOSCEN			0		/* Secondary Osillator is Disabled */	 
 #define	CONFIG_FNOSC			POSCPLL	/* Pri osc + PLL */	   
