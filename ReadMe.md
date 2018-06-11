@@ -23,4 +23,5 @@ AUDMOD
 01 = Left-Justified mode  
 00 = I2S mode  
 
-Currently I2S only support 48KHz 16bit  
+Currently I2S only support 48KHz 16bit 
+Test on Mac OS X 10.5 and 10.6

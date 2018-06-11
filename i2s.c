@@ -288,6 +288,7 @@ void I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 {
 	UINT i;
 	PINGPONG_BUFFN usePPBuffer;
+	PINGPONG_BUFFN prevPPBuffer;
 	AudioStereo* dest;
 	AudioStereo* src;
 
@@ -297,6 +298,7 @@ void I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 	if (nStereoSamples == 0) return(0);
 	
 	usePPBuffer = pCodecHandle->activeTxBuffer;
+	prevPPBuffer = usePPBuffer == PP_BUFF0 ? PP_BUFF1 : PP_BUFF0;
 
 	dest = (usePPBuffer == PP_BUFF0) ? &pCodecHandle->txBuffer[0]
 	    : &pCodecHandle->txBuffer[DMA_PP_BUFFER_SIZE];
@@ -328,7 +330,8 @@ void I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 	}
 
 	// Sart DMA
-	if (pCodecHandle->runDMA == FALSE && usePPBuffer == PP_BUFF1 &&
+	if (pCodecHandle->runDMA == FALSE &&
+	    pCodecHandle->countTxBuffer[prevPPBuffer] == BUFFER_DEPTH &&
 	    pCodecHandle->countTxBuffer[usePPBuffer] >= (BUFFER_DEPTH / 2)) {
 		mLED_1_On();
 		DmaChnSetTxfer(	I2S_SPI_TX_DMA_CHANNEL,
@@ -484,9 +487,7 @@ INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate)
 
 void stop()
 {
-	data_index_tx = 0;
-	pCodecHandlePriv->activeTxBuffer = PP_BUFF0;
-	I2SInit(pCodecHandlePriv);
+	pCodecHandlePriv->runDMA = FALSE;
 	mLED_1_Off();
 }
 
