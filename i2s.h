@@ -8,12 +8,13 @@
 #endif
 
 //#define BUFFER_DEPTH			6
-#define BUFFER_DEPTH			2
-#define I2S_TX_BUFFER_SIZE_STEREO_WORD	(49*BUFFER_DEPTH*2)
+#define BUFFER_DEPTH			2	
+#define PINGPONG_DEPTH			(BUFFER_DEPTH<<1)
+#define I2S_TX_BUFFER_SIZE_STEREO_WORD	(50*PINGPONG_DEPTH)
 #ifdef SAMPLE24
 #define I2S_TX_BUFFER_SIZE_BYTES  	(I2S_TX_BUFFER_SIZE_STEREO_WORD * sizeof(UINT32) * 2)
 #else
-#define I2S_TX_BUFFER_SIZE_BYTES  	(I2S_TX_BUFFER_SIZE_STEREO_WORD * sizeof(UINT16) * 2)
+#define I2S_TX_BUFFER_SIZE_BYTES  	(I2S_TX_BUFFER_SIZE_STEREO_WORD * sizeof(UINT32))
 #endif
 #define DMA_PP_BUFFER_SIZE 		(I2S_TX_BUFFER_SIZE_STEREO_WORD>>1)
 
@@ -62,11 +63,15 @@ typedef union{
 typedef struct __I2S_state{
 	AudioStereo			*txBuffer;
 	volatile PINGPONG_BUFFN		activeTxBuffer;
-	volatile UINT			countTxBuffer[PP_BUFFN];
-	volatile UINT			sizeTxBuffer[PP_BUFFN];
+	volatile BOOL			statusTxBuffer[PP_BUFFN];
 	volatile BOOL			runDMA;
 
 	volatile UINT	 		frameSize;	// one Isochronous size
+	volatile UINT 			bufferSize;
+	volatile UINT 			underrunCount;
+	volatile UINT 			overrunCount;
+	volatile UINT 			underrunLimit;
+	volatile UINT 			overrunLimit;
 	volatile INT 			pllkValue;
 	volatile INT 			pllkTune;
 	volatile INT			pllkTuneLimit;
@@ -95,8 +100,6 @@ typedef enum{
 I2SState* I2SOpen();
 void I2SStartAudio(I2SState *pCodecHandle, BOOL enable);
 INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate);
-void I2SWrite(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples);
+UINT I2SWrite(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples);
 void I2SAdjustSampleRateTx(I2SState* pCodecHandle);
 INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate);
-INT I2SControl(I2SState* pCodecHandle, I2S_REGISTER controlRegister, INT command);
-

@@ -210,9 +210,10 @@ void UserInit(void)
 {
     //Initialize all of the LED pins
     mInitAllLEDs();
+//    mLED_1_On();
 
     //Initialize all of the push buttons
-    mInitAllSwitches();
+//    mInitAllSwitches();
 
     //initialize the variable holding the handle for the last
     // transmission
@@ -222,11 +223,9 @@ void UserInit(void)
 	////////////////////////////////Init CODEC	
 
 	ANSELA = ANSELB = 0;
-/*
 	TRISA = 0x0000;
 	TRISB = 0x0000;
 	PORTA = 0x0000;
-*/
 	
 	// Initialize reference clock out module
 	REFOCONbits.OE = 0;
@@ -267,7 +266,7 @@ void ProcessIO(void)
 			    (unsigned char*)ReceivedDataEvenBuffer,
 //			    pCodecHandle->frameSize);
 			    USBHandleGetLength(USBRxEvenHandle)/sizeof(USB_AUDIO_SAMPLE));
-			I2SAdjustSampleRateTx(pCodecHandle);
+//			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxEvenHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataEvenBuffer,
 			    sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize
@@ -280,7 +279,7 @@ void ProcessIO(void)
 			    (unsigned char*)ReceivedDataOddBuffer,
 //			    pCodecHandle->frameSize);
 			    USBHandleGetLength(USBRxEvenHandle)/sizeof(USB_AUDIO_SAMPLE));
-			I2SAdjustSampleRateTx(pCodecHandle);
+//			I2SAdjustSampleRateTx(pCodecHandle);
 			USBRxOddHandle = USBRxOnePacket(AS_EP_OUT,
 			    (BYTE*)&ReceivedDataOddBuffer,
 			    sizeof(USB_AUDIO_SAMPLE)*pCodecHandle->frameSize

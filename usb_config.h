@@ -58,7 +58,7 @@
 								// application related data.
 									
 #define USB_MAX_NUM_INT     	3   // For tracking Alternate Setting
-#define USB_MAX_EP_NUMBER	    2
+#define USB_MAX_EP_NUMBER	    4
 
 //Device descriptor - if these two definitions are not defined then
 //  a ROM USB_DEVICE_DESCRIPTOR variable by the exact name of device_dsc
@@ -171,6 +171,6 @@
 
 #define USB_AUDIO_ENDPOINT_CONTROL_REQUESTS_HANDLER UsbAudioEndpointControlRequestsHandler
 
-#define MAX_SAMPLES_IN_A_USB_FRAME (48 + 1)
+#define MAX_SAMPLES_IN_A_USB_FRAME 96
 
 #endif //USBCFG_H
