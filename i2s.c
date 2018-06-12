@@ -32,6 +32,7 @@
 
 #include <string.h>
 
+#include "HardwareProfile.h"
 #include "i2s.h"
 
 INT I2SControl(I2SState* pCodecHandle, I2S_REGISTER controlRegister, INT command);
@@ -319,6 +320,7 @@ UINT I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoS
 
 	if (pCodecHandle->runDMA == FALSE && usePPBuffer == PP_BUFF1 &&
 	    data_index_tx > (pCodecHandle->bufferSize / 2)) {
+		mLED_1_On();
 		DmaChnSetTxfer(	I2S_SPI_TX_DMA_CHANNEL,
 			(void*)pCodecHandlePriv->txBuffer,
 			(void*)&I2S_SPI_MODULE_BUFFER,
@@ -477,6 +479,7 @@ void stop()
 {
 	data_index_tx = 0;
 	pCodecHandlePriv->activeTxBuffer = PP_BUFF0;
+	mLED_1_Off();
 }
 
 void __attribute__((interrupt(), nomips16))_DmaInterruptHandlerTx(void)
