@@ -7,8 +7,6 @@ LRCLK - RB4(PPS)
 SDATA - RA1(PPS)  
 BCLK - RB14  
 
-Currently I2S only support 48KHz 16bit  
-
 LED configuration
 
 RB15 - LED1
