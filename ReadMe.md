@@ -8,3 +8,22 @@ SDATA - RA1(PPS)
 BCLK - RB14  
 
 Currently I2S only support 48KHz 16bit  
+
+LED configuration
+
+RB15 - LED1
+
+Swtich configuration
+
+RB5 - AUDMOD bit 0 (Invert)
+Rb7 - AUDMOD bit 1 (Invert)
+
+AUDMOD
+
+11 = PCM/DSP mode
+10 = Right-Justified mode
+01 = Left-Justified mode
+00 = I2S mode
+
+Currently I2S only support 48KHz 16bit.
+Test on Mac OS X 10.4 and 10.5 by AK4382, FN1242, PCM5201.

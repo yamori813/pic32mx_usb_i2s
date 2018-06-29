@@ -213,7 +213,7 @@ void UserInit(void)
 //    mLED_1_On();
 
     //Initialize all of the push buttons
-//    mInitAllSwitches();
+    mInitAllSwitches();
 
     //initialize the variable holding the handle for the last
     // transmission
