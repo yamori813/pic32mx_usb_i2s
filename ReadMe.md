@@ -14,7 +14,7 @@ RB15 - LED1
 Swtich configuration
 
 RB5 - AUDMOD bit 0 (Invert)  
-Rb7 - AUDMOD bit 1 (Invert)  
+RB7 - AUDMOD bit 1 (Invert)  
 
 AUDMOD
 
