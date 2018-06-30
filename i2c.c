@@ -1,5 +1,5 @@
 /********************************************************************
- FileName:	i2s.c (ak4645a.c)
+ FileName:	i2c.c (ak4645a.c)
  Dependencies:  See INCLUDES section
  Processor:	PIC32 USB Microcontrollers
  Hardware:	This demo is natively intended to be used on Microchip USB demo
