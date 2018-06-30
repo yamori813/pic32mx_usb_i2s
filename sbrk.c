@@ -2,8 +2,6 @@
 #include "Compiler.h"
 #include "HardwareProfile.h"
 
-#include "uart1.h"
-
 extern int _end;
 #define	STACK_TOP	0xa0002000
 

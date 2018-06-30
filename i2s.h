@@ -18,10 +18,6 @@
 #endif
 #define DMA_PP_BUFFER_SIZE 		(I2S_TX_BUFFER_SIZE_STEREO_WORD>>1)
 
-#define I2S_I2C_ADDRESS 		((0x09<<2) | 0x02)
-#define I2S_I2C_MODULE			I2C1
-#define I2S_I2C_BAUD	  		100000
-
 #define I2S_SPI_MODULE			SPI_CHANNEL1
 #define I2S_SPI_MODULE_BUFFER	 	SPI1BUF
 #define I2S_SPI_MODULE_TX_IRQ	 	_SPI1_TX_IRQ
@@ -80,11 +76,6 @@ typedef struct __I2S_state{
 	volatile UINT32		 	samplingFreq;
 
 } I2SState;
-
-typedef enum{
-       I2S_REG_RESERVED=0,
-}I2S_REGISTER;
-
 
 typedef enum{
 	SAMPLERATE_96000HZ,

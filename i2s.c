@@ -35,8 +35,6 @@
 #include "HardwareProfile.h"
 #include "i2s.h"
 
-INT I2SControl(I2SState* pCodecHandle, I2S_REGISTER controlRegister, INT command);
-
 volatile INT 	data_index_tx=0;
 volatile INT 	data_index_value_tx=0;
 volatile INT	pllkUpdate=0;
@@ -190,91 +188,6 @@ void I2SStartAudio(I2SState *pCodecHandle, BOOL enable)
 		DmaChnDisable(I2S_SPI_TX_DMA_CHANNEL);
 		SpiChnEnable(I2S_SPI_MODULE, FALSE);
 	}
-}
-
-
-INT I2SControl(I2SState* pCodecHandle, I2S_REGISTER controlRegister, INT command)
-{
-
-	BYTE byte1  = (BYTE) (controlRegister & 0xFF);
-	BYTE byte2  = (BYTE) (command & 0xFF);
-
-
-	I2CEnable(I2S_I2C_MODULE, TRUE);
-	
-	while(I2CBusIsIdle(I2S_I2C_MODULE) == FALSE);
-
-	if (I2CStart(I2S_I2C_MODULE) != I2C_SUCCESS)
-	{
-		I2CStop(I2S_I2C_MODULE);
-		while(!(I2CGetStatus(I2S_I2C_MODULE) & I2C_STOP)); 
-		I2CEnable(I2S_I2C_MODULE, FALSE); 
-		return(-1);
-	}
-
-	while(!(I2CGetStatus(I2S_I2C_MODULE) & I2C_START));  
-
-	if (I2CSendByte(I2S_I2C_MODULE,I2S_I2C_ADDRESS) != I2C_SUCCESS)
-	{
-		I2CStop(I2S_I2C_MODULE);
-		while(!(I2CGetStatus(I2S_I2C_MODULE) & I2C_STOP));  
-		I2CEnable(I2S_I2C_MODULE, FALSE);
-		return(-1);
-	}
-
-	while(!I2CTransmissionHasCompleted(I2S_I2C_MODULE));
-
-	if (I2CByteWasAcknowledged(I2S_I2C_MODULE) == FALSE)
-	{
-		I2CStop(I2S_I2C_MODULE);
-		while(!(I2CGetStatus(I2S_I2C_MODULE) & I2C_STOP)); 
-		I2CEnable(I2S_I2C_MODULE, FALSE); 
-		return(-1);
-	}
-
-	if (I2CSendByte(I2S_I2C_MODULE,byte1) != I2C_SUCCESS)
-	{
-		I2CStop(I2S_I2C_MODULE);
-		while(!(I2CGetStatus(I2S_I2C_MODULE) & I2C_STOP)); 
-		I2CEnable(I2S_I2C_MODULE, FALSE); 
-		return(-1);
-	}
-
-	while(!I2CTransmissionHasCompleted(I2S_I2C_MODULE));
-
-	if (I2CByteWasAcknowledged(I2S_I2C_MODULE) == FALSE)
-	{
-		I2CStop(I2S_I2C_MODULE);
-		while(!(I2CGetStatus(I2S_I2C_MODULE) & I2C_STOP)); 
-		I2CEnable(I2S_I2C_MODULE, FALSE); 
-		return(-1);
-	}
-
-	if (I2CSendByte(I2S_I2C_MODULE,byte2) != I2C_SUCCESS)
-	{
-		I2CStop(I2S_I2C_MODULE);
-		while(!(I2CGetStatus(I2S_I2C_MODULE) & I2C_STOP));  
-		I2CEnable(I2S_I2C_MODULE, FALSE);
-		return(-1);
-	}
-
-	while(!I2CTransmissionHasCompleted(I2S_I2C_MODULE));
-
-	if (I2CByteWasAcknowledged(I2S_I2C_MODULE) == FALSE)
-	{
-		I2CStop(I2S_I2C_MODULE);
-		while(!(I2CGetStatus(I2S_I2C_MODULE) & I2C_STOP));  
-		I2CEnable(I2S_I2C_MODULE, FALSE);
-		return(-1);
-	}
-
-	I2CStop(I2S_I2C_MODULE);
-	while(!(I2CGetStatus(I2S_I2C_MODULE) & I2C_STOP));  
-
-	I2CEnable(I2S_I2C_MODULE, FALSE);
-	
-	return(1);	
-
 }
 
 UINT I2SWritePPBuffer(I2SState* pCodecHandle, unsigned char* data, UINT nStereoSamples)

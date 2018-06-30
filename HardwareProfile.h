@@ -20,7 +20,6 @@
 
     #include <p32xxxx.h>
     #include <plib.h>
-    #include <uart1.h>
 
 
 /** TRIS ***********************************************************/
