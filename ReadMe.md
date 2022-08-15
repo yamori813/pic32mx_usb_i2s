@@ -15,6 +15,7 @@ Swtich configuration
 
 RB5 - AUDMOD bit 0 (Invert)  
 RB7 - AUDMOD bit 1 (Invert)  
+RB8 - 256fs / 512fs
 
 AUDMOD
 

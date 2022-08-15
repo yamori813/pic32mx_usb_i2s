@@ -68,9 +68,11 @@
 //    #define mInitAllLEDs()      TRISBbits.TRISB15=0;TRISBbits.TRISB14=0;mLED_1_Off();mLED_2_Off();
     #define mInitAllLEDs()      TRISBbits.TRISB15=0;
     /** SWITCH *********************************************************/
-    #define mInitAllSwitches()  TRISBbits.TRISB5=1;TRISBbits.TRISB7=1;
+    #define mInitAllSwitches()  TRISBbits.TRISB5=1;TRISBbits.TRISB7=1;TRISBbits.TRISB8=1;TRISBbits.TRISB9=1;
     #define sw2                 PORTBbits.RB5
     #define sw3                 PORTBbits.RB7
+    #define sw4                 PORTBbits.RB8
+    #define sw5                 PORTBbits.RB9
 
 
     /** UART ***********************************************************/

@@ -97,7 +97,7 @@ I2SOpen()
     
     SPI1STATCLR = 0x40; // clear the Overflow
     SPI1CON2 = 0x00000080; // AUDEN = 1, AUDMON = 0
-    SPI1CON2bits.AUDMOD = !sw2 << 1 | !sw2;
+    SPI1CON2bits.AUDMOD = !sw3 << 1 | !sw2;
     SPI1CON2bits.IGNROV = 1; // Ignore Receive Overflow bit (for Audio Data Transmissions)
     SPI1CON2bits.IGNTUR = 1; //  Ignore Transmit Underrun bit (for Audio Data Transmissions) 1 = A TUR is not a critical error and zeros are transmitted until thSPIxTXB is not empty 0 = A TUR is a critical error which stop SPI operation
     
@@ -122,7 +122,10 @@ I2SOpen()
 #endif
     SPI1CONbits.MODE16 = 1; 
     // Baud Rate Generator
-    SPI1BRG = 1;
+    if(sw4)
+      SPI1BRG = 1;
+    else
+      SPI1BRG = 3;
     
     IEC1bits.SPI1TXIE = 0;
 
@@ -324,10 +327,16 @@ INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate)
 		case SAMPLERATE_32000HZ:
 			pCodecHandle->samplingFreq=32000;
 		   	pCodecHandle->frameSize=32;
-   			pllkUpdate=440;
+			if(sw4)
+   				pllkUpdate=440;
+			else
+   				pllkUpdate=476;
 			REFOCONbits.OE = 0;
 			REFOCONbits.ON = 0;
-			REFOCONbits.RODIV = 5;
+			if(sw4)
+				REFOCONbits.RODIV = 5;
+			else
+				REFOCONbits.RODIV = 2;
 			REFOTRIM=(pllkUpdate<<23);		
 			REFOCONSET=0x00000200;	
 			REFOCONbits.OE = 1;
@@ -341,10 +350,16 @@ INT I2SSetSampleRate(I2SState* pCodecHandle, I2S_SAMPLERATE sampleRate)
 		case SAMPLERATE_48000HZ:
 			pCodecHandle->samplingFreq=48000;
 			pCodecHandle->frameSize=48;
-   			pllkUpdate=464;
+			if(sw4)
+   				pllkUpdate=464;
+			else
+   				pllkUpdate=488;
 			REFOCONbits.OE = 0;
 			REFOCONbits.ON = 0;
-			REFOCONbits.RODIV = 3;
+			if(sw4)
+				REFOCONbits.RODIV = 3;
+			else
+				REFOCONbits.RODIV = 1;
 			REFOTRIM=(pllkUpdate<<23);
 			REFOCONSET=0x00000200;	
 			REFOCONbits.OE = 1;
