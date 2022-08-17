@@ -13,7 +13,7 @@
 //#define	CONFIG_FVBUSONIO		1		/* Vbuson is port */	
 #define	CONFIG_FVBUSONIO		0		/* Vbuson is port */	
 
-#ifdef	CONFIG_12MHz
+#ifdef	CONFIG_EC12MHz
 #define	CONFIG_FPLLIDIV			IDIV_3	/* 8 MHz ->	4 MHz */	
 #define	CONFIG_UPLLIDIV			IDIV_3	/* 8 MHz ->	4 MHz */	
 #else
@@ -31,7 +31,11 @@
 #define	CONFIG_FCKSM			CSDCMD	/* Clock Switching Disabled	 */	   
 #define	CONFIG_FPBDIV			0		/* PBCLK = SYSCLK */	
 #define	CONFIG_OSCIOFNC			1		/* CLKO	output Disabled	 */	   
+#ifdef	CONFIG_EC12MHz
+#define	CONFIG_POSCMOD			0		/* Primary Osillator is	EC mode	*/	  
+#else
 #define	CONFIG_POSCMOD			2		/* Primary Osillator is	HS mode	*/	  
+#endif
 #define	CONFIG_IESO				0		/* Switchover mode is Disbled */	
 #define	CONFIG_FSOSCEN			0		/* Secondary Osillator is Disabled */	 
 #define	CONFIG_FNOSC			POSCPLL	/* Pri osc + PLL */	   
