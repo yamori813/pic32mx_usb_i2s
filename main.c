@@ -77,6 +77,8 @@ BOOL receivedDataEvenNeedsServicingNext = FALSE;
 
 USB_VOLATILE BYTE msCounter;
 
+int fssw;
+
 /** PRIVATE PROTOTYPES *********************************************/
 void BlinkUSBStatus(void);
 static void InitializeSystem(void);
@@ -214,6 +216,12 @@ void UserInit(void)
 
     //Initialize all of the push buttons
     mInitAllSwitches();
+
+#ifdef PUSHSW
+    fssw = sw2;
+#else
+    fssw = sw4;
+#endif
 
     //initialize the variable holding the handle for the last
     // transmission
