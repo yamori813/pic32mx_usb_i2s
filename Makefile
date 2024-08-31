@@ -11,7 +11,6 @@ MP=../chipKIT-core-prebuilt/windows/chipkit-core/pic32/compiler/pic32-tools/pic3
 PINPATH=../pinguino-compilers/
 
 LKRSCRIPT=selfboot.ld
-LKRSCRIPT=selfboot.ld
 
 PICLIBS=$(MP)/lib/no-float/libmchp_peripheral_32MX220F032B.a
 PROCESSOR_O=processor.o
