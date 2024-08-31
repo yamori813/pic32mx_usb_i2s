@@ -2,6 +2,7 @@
 # with PinguinoX.4 (gcc 4.6)
 #
 
+# newest Microchip Libraries for Applications not support PIC32MX
 MCS=../microchip_solutions_v2013-06-15
 
 # https://github.com/biomurph/chipKIT-core-prebuilt
