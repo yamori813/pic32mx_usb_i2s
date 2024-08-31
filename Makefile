@@ -2,11 +2,14 @@
 # with PinguinoX.4 (gcc 4.6)
 #
 
-MCS=../../../microchip_solutions_v2013-06-15
-MP=/Applications/microchip/xc32/v1.20/pic32mx
-PINPATH=../../pinguinoX.4-rev959
-PIOTOOL=/Users/hiroki/.platformio/packages/toolchain-microchippic32
+MCS=../microchip_solutions_v2013-06-15
 
+# https://github.com/biomurph/chipKIT-core-prebuilt
+MP=../chipKIT-core-prebuilt/windows/chipkit-core/pic32/compiler/pic32-tools/pic32mx
+# https://github.com/PinguinoIDE/pinguino-compilers
+PINPATH=../pinguino-compilers/
+
+LKRSCRIPT=selfboot.ld
 LKRSCRIPT=selfboot.ld
 
 PICLIBS=$(MP)/lib/no-float/libmchp_peripheral_32MX220F032B.a
@@ -18,14 +21,13 @@ LDFLAGS=-msoft-float -Wl,--gc-sections $(MIPS16) \
 	-Wl,--defsym,_min_heap_size=$(HEAP_SIZE) \
 	-Wl,-Map=output.map \
 	-T$(LKRSCRIPT) \
-	-T$(PINPATH)/p32/lkr/elf32pic32mx.x
+	-Telf32pic32mx.x
 
 BOARD=PIC32_PINGUINO_220
 PROC=32MX220F032B
 #MIPS16=-mips16
 
 CC=$(PINPATH)/macosx/p32/bin/mips-elf-gcc
-#CC=$(PIOTOOL)/bin/pic32-gcc
 OBJC=$(PINPATH)/macosx/p32/bin/avr-objcopy
 OBJDUMP=$(PINPATH)/macosx/p32/bin/mips-elf-objdump
 SIZE=$(PINPATH)/macosx/p32/bin/mips-elf-size
@@ -33,7 +35,7 @@ PROG=../pic32prog/pic32prog
 
 ELF_FLAGS=-EL -Os -ffunction-sections -fdata-sections -march=24kc 
 
-INCLUDEDIRS=-I. -I$(MCS)/USB -I$(MCS)/Microchip/Include -I$(MCS)/Microchip/USB -I$(MP)/include
+INCLUDEDIRS=-I. -I$(MCS)/Microchip/Include -I$(MCS)/Microchip/USB -I$(MP)/include
 
 include ./Objs.mak
 
@@ -60,7 +62,7 @@ all: $(OBJS)
 	$(CC) $(ELF_FLAGS) $(CFLAGS) $(MIPS16) -c $< -o $@
 
 crt.o : crt0.S
-	$(CC) $(ELF_FLAGS) -I$(PINPATH)/p32/include/non-free -c $< -o $@
+	$(CC) $(ELF_FLAGS) -I$(MP)/include -c $< -o $@
 
 # Microchip Libraries for Applications (MLA) code
 
