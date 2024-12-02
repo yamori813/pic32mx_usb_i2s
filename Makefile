@@ -27,6 +27,7 @@ BOARD=PIC32_PINGUINO_220
 PROC=32MX220F032B
 #MIPS16=-mips16
 
+UNAME_OS := $(shell uname -s)
 ifeq ($(UNAME_OS),Darwin)
 CC=$(PINPATH)/macosx/p32/bin/mips-elf-gcc
 OBJC=$(PINPATH)/macosx/p32/bin/avr-objcopy
