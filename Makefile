@@ -1,6 +1,6 @@
 # PIC32MX usbhost build make file
 # with PinguinoX.4 (gcc 4.6)
-#
+# use GNU make
 
 # newest Microchip Libraries for Applications not support PIC32MX
 MCS=../microchip_solutions_v2013-06-15
@@ -27,10 +27,18 @@ BOARD=PIC32_PINGUINO_220
 PROC=32MX220F032B
 #MIPS16=-mips16
 
+ifeq ($(UNAME_OS),Darwin)
 CC=$(PINPATH)/macosx/p32/bin/mips-elf-gcc
 OBJC=$(PINPATH)/macosx/p32/bin/avr-objcopy
 OBJDUMP=$(PINPATH)/macosx/p32/bin/mips-elf-objdump
 SIZE=$(PINPATH)/macosx/p32/bin/mips-elf-size
+else
+CC=$(PINPATH)/linux64/p32/bin/p32-gcc
+OBJC=$(PINPATH)/linux64/p32/bin/p32-objcopy
+OBJDUMP=$(PINPATH)/linux64/p32/bin/p32-objdump
+SIZE=$(PINPATH)/linux64/p32/bin/p32-size
+endif
+
 PROG=../pic32prog/pic32prog
 
 ELF_FLAGS=-EL -Os -ffunction-sections -fdata-sections -march=24kc 
